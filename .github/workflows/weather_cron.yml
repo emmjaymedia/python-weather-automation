@@ -1,0 +1,41 @@
+name: Automated Weather Logger
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every single hour
+  workflow_dispatch: # Allows you to trigger it manually from the GitHub website anytime
+
+jobs:
+  run-weather-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Download your code onto GitHub's cloud computer
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Python on the cloud computer
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 3. Install the required 'requests' library
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      # 4. Run your Python script!
+      - name: Run weather script
+        run: |
+          python weather_logger.py
+
+      # 5. Save the updated CSV file back to your repository automatically
+      - name: Commit and push changes to CSV
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add weather_log.csv
+          git commit -m "Auto-update weather log CSV" || echo "No changes to commit"
+          git push
+          
